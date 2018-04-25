@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Fala Ai!</string>
+  <string name="say_label">O que devo dizer?</string>
+  <string name="say_input">Escreva o que devo dizer</string>
+  <string name="say_button">Fala Ai</string>
+</resources>

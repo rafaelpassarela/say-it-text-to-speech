@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="app_name">SayIt_TextToSpeech</string>
+  <string name="app_name">Say It!</string>
+  <string name="say_label">What should I say?</string>
+  <string name="say_input">Type what I should say</string>
+  <string name="say_button">Say It</string>
 </resources>
