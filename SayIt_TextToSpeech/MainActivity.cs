@@ -28,10 +28,10 @@ namespace SayIt_TextToSpeech
             // listener ok, set lang
             if (status == OperationResult.Success)
                 textToSpeech.SetLanguage(selectedLocale);
-			
-// fix not supported locale			
-//https://stackoverflow.com/questions/47062498/android-google-tts-why-langavailable-returns-not-supported-or-2			
-			
+
+// fix not supported locale
+//https://stackoverflow.com/questions/47062498/android-google-tts-why-langavailable-returns-not-supported-or-2
+
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -146,9 +146,9 @@ namespace SayIt_TextToSpeech
 
         private bool IsLocaleAvailable(Locale testLocale)
         {
-			if (testLocale = null)
-				return false;
-			
+            if (testLocale = null)
+                return false;
+
             if (Locale.Default.DisplayName == testLocale.DisplayName)
                 return true;
 
