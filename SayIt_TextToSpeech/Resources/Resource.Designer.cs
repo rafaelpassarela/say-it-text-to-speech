@@ -50,17 +50,26 @@ namespace SayIt_TextToSpeech
 			// aapt resource value: 0x7f040002
 			public const int editSpeech = 2130968578;
 			
+			// aapt resource value: 0x7f040006
+			public const int lblLanguage = 2130968582;
+			
+			// aapt resource value: 0x7f04000a
+			public const int lblPitch = 2130968586;
+			
 			// aapt resource value: 0x7f040001
 			public const int lblSayText = 2130968577;
 			
-			// aapt resource value: 0x7f040003
-			public const int linearLayout2 = 2130968579;
+			// aapt resource value: 0x7f04000e
+			public const int lblSpeed = 2130968590;
 			
 			// aapt resource value: 0x7f040011
-			public const int linearLayout3 = 2130968593;
+			public const int linearLayoutButtons = 2130968593;
+			
+			// aapt resource value: 0x7f040003
+			public const int linearLayoutConfig = 2130968579;
 			
 			// aapt resource value: 0x7f040000
-			public const int linearLayoutMain = 2130968576;
+			public const int linearLayoutText = 2130968576;
 			
 			// aapt resource value: 0x7f04000b
 			public const int seekPitch = 2130968587;
@@ -72,7 +81,7 @@ namespace SayIt_TextToSpeech
 			public const int spinLanguage = 2130968583;
 			
 			// aapt resource value: 0x7f040004
-			public const int tableLayout1 = 2130968580;
+			public const int tableLayoutConfig = 2130968580;
 			
 			// aapt resource value: 0x7f040005
 			public const int tableRow1 = 2130968581;
@@ -88,15 +97,6 @@ namespace SayIt_TextToSpeech
 			
 			// aapt resource value: 0x7f040010
 			public const int textSpeed = 2130968592;
-			
-			// aapt resource value: 0x7f040006
-			public const int textView11 = 2130968582;
-			
-			// aapt resource value: 0x7f04000a
-			public const int textView12 = 2130968586;
-			
-			// aapt resource value: 0x7f04000e
-			public const int textView13 = 2130968590;
 			
 			// aapt resource value: 0x7f040008
 			public const int textView14 = 2130968584;
@@ -133,6 +133,12 @@ namespace SayIt_TextToSpeech
 			// aapt resource value: 0x7f030000
 			public const int app_name = 2130903040;
 			
+			// aapt resource value: 0x7f030004
+			public const int language = 2130903044;
+			
+			// aapt resource value: 0x7f030006
+			public const int pitch = 2130903046;
+			
 			// aapt resource value: 0x7f030003
 			public const int say_button = 2130903043;
 			
@@ -141,6 +147,9 @@ namespace SayIt_TextToSpeech
 			
 			// aapt resource value: 0x7f030001
 			public const int say_label = 2130903041;
+			
+			// aapt resource value: 0x7f030005
+			public const int speed = 2130903045;
 			
 			static String()
 			{

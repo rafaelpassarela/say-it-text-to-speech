@@ -4,4 +4,7 @@
   <string name="say_label">O que devo dizer?</string>
   <string name="say_input">Escreva o que devo dizer</string>
   <string name="say_button">Fala Ai</string>
+  <string name="language">Idioma</string>
+  <string name="speed">Velocidade</string>
+  <string name="pitch">Tom</string>
 </resources>

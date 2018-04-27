@@ -10,8 +10,8 @@
         android:minHeight="25px"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/linearLayoutMain"
-        android:layout_weight=".45">
+        android:id="@+id/linearLayoutText"
+        android:layout_weight="0.4">
         <TextView
             android:text="@string/say_label"
             android:textAppearance="?android:attr/textAppearanceMedium"
@@ -32,25 +32,27 @@
         android:minHeight="25px"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/linearLayout2"
-        android:layout_weight=".45"
-        android:gravity="center_vertical">
+        android:id="@+id/linearLayoutConfig"
+        android:layout_weight="0.4"
+        android:gravity="top">
         <TableLayout
             android:minWidth="25px"
             android:minHeight="25px"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/tableLayout1"
+            android:id="@+id/tableLayoutConfig"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="5dp">
             <TableRow
                 android:id="@+id/tableRow1"
-                android:weightSum="1">
+                android:weightSum="1"
+                android:minHeight="40dp"
+                android:gravity="center_vertical">
                 <TextView
-                    android:text="Language"
+                    android:text="@string/language"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:layout_column="0"
-                    android:id="@+id/textView11"
+                    android:id="@+id/lblLanguage"
                     android:layout_marginRight="5dp"
                     android:layout_weight=".1" />
                 <Spinner
@@ -66,12 +68,13 @@
             <TableRow
                 android:id="@+id/tableRow2"
                 android:gravity="center_vertical"
-                android:weightSum="1">
+                android:weightSum="1"
+                android:minHeight="40dp">
                 <TextView
-                    android:text="Pitch"
+                    android:text="@string/pitch"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:layout_column="0"
-                    android:id="@+id/textView12"
+                    android:id="@+id/lblPitch"
                     android:layout_weight=".1" />
                 <SeekBar
                     android:layout_column="1"
@@ -89,13 +92,14 @@
             <TableRow
                 android:id="@+id/tableRow3"
                 android:gravity="center_vertical"
-                android:weightSum="1">
+                android:weightSum="1"
+                android:minHeight="40dp">
                 <TextView
-                    android:text="Speed"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:layout_column="0"
-                    android:id="@+id/textView13"
-                    android:layout_weight=".1" />
+                    android:id="@+id/lblSpeed"
+                    android:layout_weight=".1"
+                    android:text="@string/speed" />
                 <SeekBar
                     android:layout_column="1"
                     android:id="@+id/seekSpeed"
@@ -116,7 +120,7 @@
         android:minHeight="25px"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/linearLayout3"
+        android:id="@+id/linearLayoutButtons"
         android:layout_weight=".1"
         android:gravity="center">
         <Button
