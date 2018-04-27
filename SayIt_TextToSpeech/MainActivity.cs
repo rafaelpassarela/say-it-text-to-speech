@@ -28,6 +28,10 @@ namespace SayIt_TextToSpeech
             // listener ok, set lang
             if (status == OperationResult.Success)
                 textToSpeech.SetLanguage(selectedLocale);
+			
+// fix not supported locale			
+//https://stackoverflow.com/questions/47062498/android-google-tts-why-langavailable-returns-not-supported-or-2			
+			
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -77,7 +81,7 @@ namespace SayIt_TextToSpeech
 
             // set up the langauge spinner
             // set the top option to be default
-            var langAvailable = new List<string>(); // { "Default" };
+            var langAvailable = new List<string> { "Default" };
 
             // our spinner only wants to contain the languages supported by the tts and ignore the rest
             var localesAvailable = Locale.GetAvailableLocales().ToList();
@@ -142,7 +146,10 @@ namespace SayIt_TextToSpeech
 
         private bool IsLocaleAvailable(Locale testLocale)
         {
-            if (testLocale != null && Locale.Default.DisplayName == testLocale.DisplayName)
+			if (testLocale = null)
+				return false;
+			
+            if (Locale.Default.DisplayName == testLocale.DisplayName)
                 return true;
 
             LanguageAvailableResult res = textToSpeech.IsLanguageAvailable(testLocale);
