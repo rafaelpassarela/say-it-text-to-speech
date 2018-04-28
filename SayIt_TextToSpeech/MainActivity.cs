@@ -114,6 +114,7 @@ namespace SayIt_TextToSpeech
             var txtPitchVal = FindViewById<TextView>(Resource.Id.textPitch);
             var seekSpeed = FindViewById<SeekBar>(Resource.Id.seekSpeed);
             var seekPitch = FindViewById<SeekBar>(Resource.Id.seekPitch);
+            var btnClear = FindViewById<Button>(Resource.Id.btnClear);
             spinLanguages = FindViewById<Spinner>(Resource.Id.spinLanguage);
 
             // set up the initial pitch and speed values then the onscreen values
@@ -145,6 +146,11 @@ namespace SayIt_TextToSpeech
                 // if there is nothing to say, don't say it
                 if (!string.IsNullOrEmpty(editWhatToSay.Text))
                     textToSpeech.Speak(editWhatToSay.Text, QueueMode.Flush, null);
+            };
+
+            btnClear.Click += delegate
+            {
+                editWhatToSay.Text = "";
             };
 
             // sliders

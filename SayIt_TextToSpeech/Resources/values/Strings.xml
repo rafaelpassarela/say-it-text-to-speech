@@ -11,4 +11,5 @@
   <string name="share_by">Share With</string>
   <string name="git">Source Code</string>
   <string name="configTTS">Configurations</string>
+  <string name="clear">Clear</string>
 </resources>

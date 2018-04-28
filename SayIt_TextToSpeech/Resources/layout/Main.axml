@@ -126,7 +126,12 @@
         <Button
             android:text="@string/say_button"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="55dp"
             android:id="@+id/btnSpeak" />
+        <Button
+            android:layout_height="55dp"
+            android:id="@+id/btnClear"
+            android:layout_width="55dp"
+            android:drawableLeft="@android:drawable/ic_menu_delete" />
     </LinearLayout>
 </LinearLayout>
