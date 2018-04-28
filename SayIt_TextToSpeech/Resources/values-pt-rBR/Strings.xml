@@ -12,4 +12,5 @@
   <string name="git">Código Fonte</string>
   <string name="configTTS">Configuração</string>
   <string name="clear">Limpar</string>
+  <string name="no_text">Nada a dizer!</string>
 </resources>

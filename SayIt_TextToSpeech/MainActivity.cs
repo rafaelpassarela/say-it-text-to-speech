@@ -121,8 +121,10 @@ namespace SayIt_TextToSpeech
             // the pitch and rate both go from 0f to 1f, however if you have a seek bar with a max of 1, you get a single step
             // therefore, a simpler option is to have the slider go from 0 to 255 and divide the position of the slider by 255 to get
             // the float
-            seekSpeed.Progress = seekPitch.Progress = 127;
-            txtSpeedVal.Text = txtPitchVal.Text = "0.5";
+            seekPitch.Progress = 254;
+            seekSpeed.Progress = 254;
+            txtPitchVal.Text = "1.00";
+            txtSpeedVal.Text = "1.00";
 
             // get the context - easiest way is to obtain it from an on screen gadget
             context = btnSayIt.Context;
@@ -137,8 +139,8 @@ namespace SayIt_TextToSpeech
             textToSpeech.SetLanguage(selectedLocale);
 
             // set the speed and pitch
-            textToSpeech.SetPitch(.5f);
-            textToSpeech.SetSpeechRate(.5f);
+            textToSpeech.SetPitch(1f);
+            textToSpeech.SetSpeechRate(1f);
 
             // connect up the events
             btnSayIt.Click += delegate
@@ -146,6 +148,8 @@ namespace SayIt_TextToSpeech
                 // if there is nothing to say, don't say it
                 if (!string.IsNullOrEmpty(editWhatToSay.Text))
                     textToSpeech.Speak(editWhatToSay.Text, QueueMode.Flush, null);
+                else
+                    Toast.MakeText(this, GetText(Resource.String.no_text), ToastLength.Long).Show();
             };
 
             btnClear.Click += delegate

@@ -5,6 +5,25 @@
     android:layout_height="fill_parent"
     android:weightSum="1">
     <LinearLayout
+        android:orientation="horizontal"
+        android:minWidth="25px"
+        android:minHeight="59dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayoutButtons"
+        android:gravity="center">
+        <Button
+            android:text="@string/say_button"
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:id="@+id/btnSpeak" />
+        <Button
+            android:layout_height="55dp"
+            android:id="@+id/btnClear"
+            android:layout_width="55dp"
+            android:drawableLeft="@android:drawable/ic_menu_delete" />
+    </LinearLayout>
+    <LinearLayout
         android:orientation="vertical"
         android:minWidth="25px"
         android:minHeight="25px"
@@ -113,25 +132,5 @@
                     android:layout_weight=".1" />
             </TableRow>
         </TableLayout>
-    </LinearLayout>
-    <LinearLayout
-        android:orientation="horizontal"
-        android:minWidth="25px"
-        android:minHeight="25px"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/linearLayoutButtons"
-        android:layout_weight=".1"
-        android:gravity="center">
-        <Button
-            android:text="@string/say_button"
-            android:layout_width="wrap_content"
-            android:layout_height="55dp"
-            android:id="@+id/btnSpeak" />
-        <Button
-            android:layout_height="55dp"
-            android:id="@+id/btnClear"
-            android:layout_width="55dp"
-            android:drawableLeft="@android:drawable/ic_menu_delete" />
     </LinearLayout>
 </LinearLayout>

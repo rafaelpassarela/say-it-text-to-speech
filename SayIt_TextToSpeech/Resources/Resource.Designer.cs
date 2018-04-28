@@ -60,35 +60,35 @@ namespace SayIt_TextToSpeech
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f070013
-			public const int btnClear = 2131165203;
-			
-			// aapt resource value: 0x7f070012
-			public const int btnSpeak = 2131165202;
-			
 			// aapt resource value: 0x7f070002
-			public const int editSpeech = 2131165186;
-			
-			// aapt resource value: 0x7f070006
-			public const int lblLanguage = 2131165190;
-			
-			// aapt resource value: 0x7f07000a
-			public const int lblPitch = 2131165194;
+			public const int btnClear = 2131165186;
 			
 			// aapt resource value: 0x7f070001
-			public const int lblSayText = 2131165185;
+			public const int btnSpeak = 2131165185;
 			
-			// aapt resource value: 0x7f07000e
-			public const int lblSpeed = 2131165198;
+			// aapt resource value: 0x7f070005
+			public const int editSpeech = 2131165189;
+			
+			// aapt resource value: 0x7f070009
+			public const int lblLanguage = 2131165193;
+			
+			// aapt resource value: 0x7f07000d
+			public const int lblPitch = 2131165197;
+			
+			// aapt resource value: 0x7f070004
+			public const int lblSayText = 2131165188;
 			
 			// aapt resource value: 0x7f070011
-			public const int linearLayoutButtons = 2131165201;
-			
-			// aapt resource value: 0x7f070003
-			public const int linearLayoutConfig = 2131165187;
+			public const int lblSpeed = 2131165201;
 			
 			// aapt resource value: 0x7f070000
-			public const int linearLayoutText = 2131165184;
+			public const int linearLayoutButtons = 2131165184;
+			
+			// aapt resource value: 0x7f070006
+			public const int linearLayoutConfig = 2131165190;
+			
+			// aapt resource value: 0x7f070003
+			public const int linearLayoutText = 2131165187;
 			
 			// aapt resource value: 0x7f070014
 			public const int menu_config = 2131165204;
@@ -96,35 +96,35 @@ namespace SayIt_TextToSpeech
 			// aapt resource value: 0x7f070015
 			public const int menu_git = 2131165205;
 			
-			// aapt resource value: 0x7f07000b
-			public const int seekPitch = 2131165195;
+			// aapt resource value: 0x7f07000e
+			public const int seekPitch = 2131165198;
 			
-			// aapt resource value: 0x7f07000f
-			public const int seekSpeed = 2131165199;
+			// aapt resource value: 0x7f070012
+			public const int seekSpeed = 2131165202;
+			
+			// aapt resource value: 0x7f07000a
+			public const int spinLanguage = 2131165194;
 			
 			// aapt resource value: 0x7f070007
-			public const int spinLanguage = 2131165191;
-			
-			// aapt resource value: 0x7f070004
-			public const int tableLayoutConfig = 2131165188;
-			
-			// aapt resource value: 0x7f070005
-			public const int tableRow1 = 2131165189;
-			
-			// aapt resource value: 0x7f070009
-			public const int tableRow2 = 2131165193;
-			
-			// aapt resource value: 0x7f07000d
-			public const int tableRow3 = 2131165197;
-			
-			// aapt resource value: 0x7f07000c
-			public const int textPitch = 2131165196;
-			
-			// aapt resource value: 0x7f070010
-			public const int textSpeed = 2131165200;
+			public const int tableLayoutConfig = 2131165191;
 			
 			// aapt resource value: 0x7f070008
-			public const int textView14 = 2131165192;
+			public const int tableRow1 = 2131165192;
+			
+			// aapt resource value: 0x7f07000c
+			public const int tableRow2 = 2131165196;
+			
+			// aapt resource value: 0x7f070010
+			public const int tableRow3 = 2131165200;
+			
+			// aapt resource value: 0x7f07000f
+			public const int textPitch = 2131165199;
+			
+			// aapt resource value: 0x7f070013
+			public const int textSpeed = 2131165203;
+			
+			// aapt resource value: 0x7f07000b
+			public const int textView14 = 2131165195;
 			
 			static Id()
 			{
@@ -201,6 +201,9 @@ namespace SayIt_TextToSpeech
 			
 			// aapt resource value: 0x7f050004
 			public const int language = 2131034116;
+			
+			// aapt resource value: 0x7f05000c
+			public const int no_text = 2131034124;
 			
 			// aapt resource value: 0x7f050006
 			public const int pitch = 2131034118;
