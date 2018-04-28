@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Android.Runtime;
 using Java.Util;
+using Android.Views;
 
 namespace SayIt_TextToSpeech
 {
@@ -18,6 +19,7 @@ namespace SayIt_TextToSpeech
         private TextToSpeech textToSpeech;
         private Locale selectedLocale;
         private readonly int needLang = 103;
+        private readonly int needConfig = 203;
         private Spinner spinLanguages;
         private List<string> langAvailable = new List<string>();
         Context context;
@@ -45,7 +47,8 @@ namespace SayIt_TextToSpeech
                 }
                 langAvailable = langAvailable.OrderBy(t => t).Distinct().ToList();
 
-                var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerDropDownItem, langAvailable);
+                var adapter = new ArrayAdapter<string>(
+                    this, Android.Resource.Layout.SimpleSpinnerDropDownItem, langAvailable);
                 spinLanguages.Adapter = adapter;
                 spinLanguages.SetSelection(langAvailable.IndexOf(selectedLocale.DisplayName));
                 textToSpeech.SetLanguage(selectedLocale);
@@ -55,7 +58,7 @@ namespace SayIt_TextToSpeech
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
         {
             // base.OnActivityResult(requestCode, resultCode, data);
-            if (requestCode == needLang && !IsLocaleAvailable(selectedLocale))
+            if (requestCode == needConfig || (requestCode == needLang && !IsLocaleAvailable(selectedLocale)))
             {
                 // we need a new language installed
                 var installTTS = new Intent();
@@ -66,6 +69,36 @@ namespace SayIt_TextToSpeech
             {
                 textToSpeech.SetLanguage(selectedLocale);
             }
+        }
+
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            MenuInflater.Inflate(Resource.Menu.MainMenu, menu);
+            return base.OnPrepareOptionsMenu(menu);
+        }
+
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            switch (item.ItemId)
+            {
+                case Resource.Id.menu_git:
+                    ShowGitPage();
+                    return true;
+                case Resource.Id.menu_config:
+                    var checkTTSIntent = new Intent();
+                    checkTTSIntent.SetAction(TextToSpeech.Engine.ActionCheckTtsData);
+                    StartActivityForResult(checkTTSIntent, needConfig);
+                    return true;
+            }
+
+            return base.OnOptionsItemSelected(item);
+        }
+
+        private void ShowGitPage()
+        {
+            var uri = Android.Net.Uri.Parse("https://goo.gl/muzv91");
+            var intent = new Intent(Intent.ActionView, uri);
+            StartActivity(intent);
         }
 
         protected override void OnCreate(Bundle savedInstanceState)
