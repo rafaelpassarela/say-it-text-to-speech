@@ -18,6 +18,8 @@ namespace SayIt_TextToSpeech
         private TextToSpeech textToSpeech;
         private Locale selectedLocale;
         private readonly int needLang = 103;
+        private Spinner spinLanguages;
+        private List<string> langAvailable = new List<string>();
         Context context;
 
         public void OnInit([GeneratedEnum] OperationResult status)
@@ -27,11 +29,27 @@ namespace SayIt_TextToSpeech
                 textToSpeech.SetLanguage(Locale.Default);
             // listener ok, set lang
             if (status == OperationResult.Success)
+            {
+                langAvailable.Clear();
+                langAvailable.Add("Default");
+                // our spinner only wants to contain the languages supported by the tts and ignore the rest
+                var localesAvailable = Locale.GetAvailableLocales().ToList();
+                foreach (var locale in localesAvailable)
+                {
+                    LanguageAvailableResult res = textToSpeech.IsLanguageAvailable(locale);
+
+                    if (IsLocaleAvailable(locale))
+                    {
+                        langAvailable.Add(locale.DisplayName);
+                    }
+                }
+                langAvailable = langAvailable.OrderBy(t => t).Distinct().ToList();
+
+                var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerDropDownItem, langAvailable);
+                spinLanguages.Adapter = adapter;
+                spinLanguages.SetSelection(langAvailable.IndexOf(selectedLocale.DisplayName));
                 textToSpeech.SetLanguage(selectedLocale);
-
-// fix not supported locale
-//https://stackoverflow.com/questions/47062498/android-google-tts-why-langavailable-returns-not-supported-or-2
-
+            }
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
@@ -59,11 +77,11 @@ namespace SayIt_TextToSpeech
 
             var btnSayIt = FindViewById<Button>(Resource.Id.btnSpeak);
             var editWhatToSay = FindViewById<EditText>(Resource.Id.editSpeech);
-            var spinLanguages = FindViewById<Spinner>(Resource.Id.spinLanguage);
             var txtSpeedVal = FindViewById<TextView>(Resource.Id.textSpeed);
             var txtPitchVal = FindViewById<TextView>(Resource.Id.textPitch);
             var seekSpeed = FindViewById<SeekBar>(Resource.Id.seekSpeed);
             var seekPitch = FindViewById<SeekBar>(Resource.Id.seekPitch);
+            spinLanguages = FindViewById<Spinner>(Resource.Id.spinLanguage);
 
             // set up the initial pitch and speed values then the onscreen values
             // the pitch and rate both go from 0f to 1f, however if you have a seek bar with a max of 1, you get a single step
@@ -78,26 +96,6 @@ namespace SayIt_TextToSpeech
             // set up the TextToSpeech object
             // third parameter is the speech engine to use
             textToSpeech = new TextToSpeech(this, this, "com.google.android.tts");
-
-            // set up the langauge spinner
-            // set the top option to be default
-            var langAvailable = new List<string> { "Default" };
-
-            // our spinner only wants to contain the languages supported by the tts and ignore the rest
-            var localesAvailable = Locale.GetAvailableLocales().ToList();
-            foreach (var locale in localesAvailable)
-            {
-                LanguageAvailableResult res = textToSpeech.IsLanguageAvailable(locale);
-
-                if (IsLocaleAvailable(locale))
-                {
-                    langAvailable.Add(locale.DisplayName);
-                }
-            }
-            langAvailable = langAvailable.OrderBy(t => t).Distinct().ToList();
-
-            var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerDropDownItem, langAvailable);
-            spinLanguages.Adapter = adapter;
 
             // set up the speech to use the default langauge
             // if a language is not available, then the default language is used.
@@ -146,7 +144,7 @@ namespace SayIt_TextToSpeech
 
         private bool IsLocaleAvailable(Locale testLocale)
         {
-            if (testLocale = null)
+            if (testLocale == null)
                 return false;
 
             if (Locale.Default.DisplayName == testLocale.DisplayName)
