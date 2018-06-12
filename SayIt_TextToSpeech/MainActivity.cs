@@ -18,8 +18,7 @@ namespace SayIt_TextToSpeech
 {
     [Activity(Label = "@string/app_name", MainLauncher = true)]
     public class MainActivity : Activity,
-        TextToSpeech.IOnInitListener,
-        TextToSpeech.IOnUtteranceCompletedListener
+        TextToSpeech.IOnInitListener
     {
         private TextToSpeech textToSpeech;
         private Locale selectedLocale;
@@ -139,7 +138,7 @@ namespace SayIt_TextToSpeech
             // set up the TextToSpeech object
             // third parameter is the speech engine to use
             textToSpeech = new TextToSpeech(this, this, "com.google.android.tts");
-            textToSpeech.SetOnUtteranceCompletedListener(this);
+            //textToSpeech.SetOnUtteranceCompletedListener(this);
 
             // set up the speech to use the default langauge
             // if a language is not available, then the default language is used.
@@ -216,6 +215,7 @@ namespace SayIt_TextToSpeech
                 if (res == OperationResult.Success)
                 {
                     Toast.MakeText(this, GetText(Resource.String.file_location) + fileName, ToastLength.Long).Show();
+                    DoShareAudio(fullName);
                 }
                 else
                 {
@@ -226,6 +226,25 @@ namespace SayIt_TextToSpeech
             {
                 Toast.MakeText(this, GetText(Resource.String.no_text), ToastLength.Long).Show();
             }
+        }
+
+        private void DoShareAudio(string audioFileName)
+        {
+            //var f = new File(audioFileName);
+            //Uri uri = Uri.parse("file://" + f.getAbsolutePath());
+
+            //Java.IO.File file = new Java.IO.File(audioFileName);
+            //var uri = FileProvider.GetUriForFile(this, BuildConfig.ApplicationId + ".provider", file);
+            
+            // send as audio stream
+            Intent intentSend = new Intent();
+            intentSend.SetAction(Intent.ActionSend);
+            intentSend.SetType("audio/mp3");
+            //intentSend.PutExtra(Intent.ExtraStream, uri);
+            //intentSend.PutExtra(Intent.ExtraStream, "file:///" + audioFileName);
+            intentSend.AddFlags(ActivityFlags.GrantReadUriPermission);
+            
+            StartActivity(Intent.CreateChooser(intentSend, GetText(Resource.String.share_by)));
         }
 
         private bool IsLocaleAvailable(Locale testLocale)
@@ -241,12 +260,6 @@ namespace SayIt_TextToSpeech
             return (res == LanguageAvailableResult.Available)
                 || (res == LanguageAvailableResult.CountryAvailable)
                 || (res == LanguageAvailableResult.CountryVarAvailable);
-        }
-
-        public void OnUtteranceCompleted(string utteranceId)
-        {
-            //btnShare.Enabled = true;
-            //Toast.MakeText(this, "DONE: " + utteranceId, ToastLength.Long);
         }
     }
 }
