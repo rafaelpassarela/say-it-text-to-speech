@@ -13,4 +13,6 @@
   <string name="configTTS">Configuração</string>
   <string name="clear">Limpar</string>
   <string name="no_text">Nada a dizer!</string>
+  <string name="file_location">Arquivo salvo em </string>
+  <string name="save_error">Não foi possivel salvar o arquivo </string>
 </resources>

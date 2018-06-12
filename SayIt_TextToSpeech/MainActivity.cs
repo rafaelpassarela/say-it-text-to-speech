@@ -1,26 +1,32 @@
-﻿using System;
-
-using Android.App;
+﻿using Android.App;
 using Android.Content;
-using Android.Widget;
 using Android.OS;
-using Android.Speech.Tts;
-using System.Collections.Generic;
-using System.Linq;
 using Android.Runtime;
-using Java.Util;
+using Android.Speech.Tts;
 using Android.Views;
+using Android.Widget;
+using Java.Util;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+
+//ctrl r + g
+//ctrl k + d
 
 namespace SayIt_TextToSpeech
 {
     [Activity(Label = "@string/app_name", MainLauncher = true)]
-    public class MainActivity : Activity, TextToSpeech.IOnInitListener
+    public class MainActivity : Activity,
+        TextToSpeech.IOnInitListener,
+        TextToSpeech.IOnUtteranceCompletedListener
     {
         private TextToSpeech textToSpeech;
         private Locale selectedLocale;
         private readonly int needLang = 103;
         private readonly int needConfig = 203;
         private Spinner spinLanguages;
+        private Button btnShare;
         private List<string> langAvailable = new List<string>();
         Context context;
 
@@ -115,6 +121,7 @@ namespace SayIt_TextToSpeech
             var seekSpeed = FindViewById<SeekBar>(Resource.Id.seekSpeed);
             var seekPitch = FindViewById<SeekBar>(Resource.Id.seekPitch);
             var btnClear = FindViewById<Button>(Resource.Id.btnClear);
+            btnShare = FindViewById<Button>(Resource.Id.btnShare);
             spinLanguages = FindViewById<Spinner>(Resource.Id.spinLanguage);
 
             // set up the initial pitch and speed values then the onscreen values
@@ -132,6 +139,7 @@ namespace SayIt_TextToSpeech
             // set up the TextToSpeech object
             // third parameter is the speech engine to use
             textToSpeech = new TextToSpeech(this, this, "com.google.android.tts");
+            textToSpeech.SetOnUtteranceCompletedListener(this);
 
             // set up the speech to use the default langauge
             // if a language is not available, then the default language is used.
@@ -155,6 +163,11 @@ namespace SayIt_TextToSpeech
             btnClear.Click += delegate
             {
                 editWhatToSay.Text = "";
+            };
+
+            btnShare.Click += delegate
+            {
+                ShareTranslatedAudio(editWhatToSay.Text);
             };
 
             // sliders
@@ -185,6 +198,36 @@ namespace SayIt_TextToSpeech
             };
         }
 
+        private void ShareTranslatedAudio(string text)
+        {
+            if (!string.IsNullOrEmpty(text))
+            {
+                btnShare.Enabled = false;
+
+                var path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+                var fileName = GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".mp3";
+                var fullName = Path.Combine(path.AbsolutePath, fileName);
+
+                Java.Lang.ICharSequence chars = new Java.Lang.String(text);
+                Java.IO.File javaFile = new Java.IO.File(fullName);
+                var res = textToSpeech.SynthesizeToFile(chars, null, javaFile, "myId");
+
+                btnShare.Enabled = true;
+                if (res == OperationResult.Success)
+                {
+                    Toast.MakeText(this, GetText(Resource.String.file_location) + fileName, ToastLength.Long).Show();
+                }
+                else
+                {
+                    Toast.MakeText(this, GetText(Resource.String.save_error) + fileName, ToastLength.Long).Show();
+                }
+            }
+            else
+            {
+                Toast.MakeText(this, GetText(Resource.String.no_text), ToastLength.Long).Show();
+            }
+        }
+
         private bool IsLocaleAvailable(Locale testLocale)
         {
             if (testLocale == null)
@@ -198,6 +241,12 @@ namespace SayIt_TextToSpeech
             return (res == LanguageAvailableResult.Available)
                 || (res == LanguageAvailableResult.CountryAvailable)
                 || (res == LanguageAvailableResult.CountryVarAvailable);
+        }
+
+        public void OnUtteranceCompleted(string utteranceId)
+        {
+            //btnShare.Enabled = true;
+            //Toast.MakeText(this, "DONE: " + utteranceId, ToastLength.Long);
         }
     }
 }

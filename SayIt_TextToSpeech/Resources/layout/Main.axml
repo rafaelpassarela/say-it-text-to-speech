@@ -18,8 +18,13 @@
             android:layout_height="55dp"
             android:id="@+id/btnSpeak" />
         <Button
+            android:id="@+id/btnShare"
             android:layout_height="55dp"
+            android:layout_width="55dp"
+            android:drawableLeft="@android:drawable/ic_menu_share" />
+        <Button
             android:id="@+id/btnClear"
+            android:layout_height="55dp"
             android:layout_width="55dp"
             android:drawableLeft="@android:drawable/ic_menu_delete" />
     </LinearLayout>
