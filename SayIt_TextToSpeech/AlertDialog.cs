@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
-using Android.Content;
-using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
+﻿using Android.Content;
+using System;
 
 namespace SayIt_TextToSpeech
 {
     class AlertDialog
-    {        
-        static public void InfoMessage(Context context, string caption, string message)
+    {
+        static public void InfoMessage(Context context, string caption, string message, Func<bool> onOkClick)
         {
             Android.App.AlertDialog.Builder dialog = new Android.App.AlertDialog.Builder(context);
             Android.App.AlertDialog alert = dialog.Create();
@@ -22,6 +13,7 @@ namespace SayIt_TextToSpeech
             alert.SetMessage(message);
             alert.SetButton("OK", (c, ev) =>
             {
+                onOkClick?.Invoke();
                 return;
             });
             alert.Show();

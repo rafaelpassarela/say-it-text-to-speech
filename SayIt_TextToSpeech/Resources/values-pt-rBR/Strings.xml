@@ -15,5 +15,5 @@
   <string name="no_text">Nada a dizer!</string>
   <string name="file_location">Arquivo salvo em </string>
   <string name="save_error">Não foi possivel salvar o arquivo </string>
-  <string name="say_error">Ops! Não foi possivel reproduzir neste momento. Tente novamente daqui a pouco.</string>
+  <string name="say_error">Ops! Não foi possivel reproduzir neste momento. Verifique as permissões do App e tente novamente.</string>
 </resources>

@@ -1,5 +1,7 @@
-﻿using Android.App;
+﻿using Android;
+using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
 using Android.Speech.Tts;
@@ -198,14 +200,19 @@ namespace SayIt_TextToSpeech
             };
 
             listner = new UtteranceProgressListenerWrapper(
-                (string x) => { return SetEnables(true); },
+                (string x) => {
+                    Toast.MakeText(this, "DONE", ToastLength.Long).Show();
+                    return SetEnables(true); },
                 (string x) =>
                 {
-                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error));
+                    Toast.MakeText(this, "ERROR", ToastLength.Long).Show();
+                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error), null);
                     SetEnables(true);
                     return false;
                 },
-                (string x) => { return SetEnables(false); }
+                (string x) => {
+                    Toast.MakeText(this, "BEGIN", ToastLength.Long).Show();
+                    return SetEnables(false); }
             );
 
             textToSpeech.SetOnUtteranceProgressListener(listner);
@@ -242,7 +249,20 @@ namespace SayIt_TextToSpeech
                 }
                 else
                 {
-                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.save_error) + fileName);
+                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error) + '\n' + '\n' + fullName,
+                        () =>
+                        {
+                            if ((int)Build.VERSION.SdkInt >= 23)
+                            {
+                                const string permission = Manifest.Permission.WriteExternalStorage;
+                                var permissionList = new String[] { permission, Manifest.Permission.ReadExternalStorage };
+
+                                if (CheckSelfPermission(permission) != (int)Permission.Granted)
+                                    RequestPermissions(permissionList, 0);
+                            }
+                            return true;
+                        }
+                    );
                 }
             }
             else
