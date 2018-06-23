@@ -11,14 +11,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-//ctrl r + g
-//ctrl k + d
-
 namespace SayIt_TextToSpeech
 {
     [Activity(Label = "@string/app_name", MainLauncher = true)]
-    public class MainActivity : Activity,
-        TextToSpeech.IOnInitListener
+    public class MainActivity : Activity, TextToSpeech.IOnInitListener
     {
         private TextToSpeech textToSpeech;
         private Locale selectedLocale;
@@ -26,7 +22,11 @@ namespace SayIt_TextToSpeech
         private readonly int needConfig = 203;
         private Spinner spinLanguages;
         private Button btnShare;
+        private Button btnSayIt;
+        private Button btnClear;
+
         private List<string> langAvailable = new List<string>();
+        private UtteranceProgressListenerWrapper listner;
         Context context;
 
         public void OnInit([GeneratedEnum] OperationResult status)
@@ -113,14 +113,15 @@ namespace SayIt_TextToSpeech
             // Set our view from the "main" layout resource
             SetContentView(Resource.Layout.Main);
 
-            var btnSayIt = FindViewById<Button>(Resource.Id.btnSpeak);
+            btnSayIt = FindViewById<Button>(Resource.Id.btnSpeak);
+            btnShare = FindViewById<Button>(Resource.Id.btnShare);
+            btnClear = FindViewById<Button>(Resource.Id.btnClear);
+
             var editWhatToSay = FindViewById<EditText>(Resource.Id.editSpeech);
             var txtSpeedVal = FindViewById<TextView>(Resource.Id.textSpeed);
             var txtPitchVal = FindViewById<TextView>(Resource.Id.textPitch);
             var seekSpeed = FindViewById<SeekBar>(Resource.Id.seekSpeed);
             var seekPitch = FindViewById<SeekBar>(Resource.Id.seekPitch);
-            var btnClear = FindViewById<Button>(Resource.Id.btnClear);
-            btnShare = FindViewById<Button>(Resource.Id.btnShare);
             spinLanguages = FindViewById<Spinner>(Resource.Id.spinLanguage);
 
             // set up the initial pitch and speed values then the onscreen values
@@ -166,7 +167,7 @@ namespace SayIt_TextToSpeech
 
             btnShare.Click += delegate
             {
-                ShareTranslatedAudio(editWhatToSay.Text);
+                SaveAudio(editWhatToSay.Text);
             };
 
             // sliders
@@ -195,9 +196,30 @@ namespace SayIt_TextToSpeech
                 checkTTSIntent.SetAction(TextToSpeech.Engine.ActionCheckTtsData);
                 StartActivityForResult(checkTTSIntent, needLang);
             };
+
+            listner = new UtteranceProgressListenerWrapper(
+                (string x) => { return SetEnables(true); },
+                (string x) =>
+                {
+                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error));
+                    SetEnables(true);
+                    return false;
+                },
+                (string x) => { return SetEnables(false); }
+            );
+
+            textToSpeech.SetOnUtteranceProgressListener(listner);
         }
 
-        private void ShareTranslatedAudio(string text)
+        private bool SetEnables(bool value)
+        {
+            btnClear.Enabled = value;
+            btnSayIt.Enabled = value;
+            btnShare.Enabled = value;
+            return true;
+        }
+
+        private void SaveAudio(string text)
         {
             if (!string.IsNullOrEmpty(text))
             {
@@ -207,9 +229,10 @@ namespace SayIt_TextToSpeech
                 var fileName = GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".mp3";
                 var fullName = Path.Combine(path.AbsolutePath, fileName);
 
-                Java.Lang.ICharSequence chars = new Java.Lang.String(text);
+                //Java.Lang.ICharSequence chars = new Java.Lang.String(text);
                 Java.IO.File javaFile = new Java.IO.File(fullName);
-                var res = textToSpeech.SynthesizeToFile(chars, null, javaFile, "myId");
+                var res = textToSpeech.SynthesizeToFile(text, null, javaFile, "myId");
+                //var res = textToSpeech.SynthesizeToFile(text, null, fullName);
 
                 btnShare.Enabled = true;
                 if (res == OperationResult.Success)
@@ -219,7 +242,7 @@ namespace SayIt_TextToSpeech
                 }
                 else
                 {
-                    Toast.MakeText(this, GetText(Resource.String.save_error) + fileName, ToastLength.Long).Show();
+                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.save_error) + fileName);
                 }
             }
             else
@@ -235,7 +258,7 @@ namespace SayIt_TextToSpeech
 
             //Java.IO.File file = new Java.IO.File(audioFileName);
             //var uri = FileProvider.GetUriForFile(this, BuildConfig.ApplicationId + ".provider", file);
-            
+
             // send as audio stream
             Intent intentSend = new Intent();
             intentSend.SetAction(Intent.ActionSend);
@@ -243,7 +266,7 @@ namespace SayIt_TextToSpeech
             //intentSend.PutExtra(Intent.ExtraStream, uri);
             //intentSend.PutExtra(Intent.ExtraStream, "file:///" + audioFileName);
             intentSend.AddFlags(ActivityFlags.GrantReadUriPermission);
-            
+
             StartActivity(Intent.CreateChooser(intentSend, GetText(Resource.String.share_by)));
         }
 

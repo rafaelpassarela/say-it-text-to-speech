@@ -15,4 +15,5 @@
   <string name="no_text">Nothing to say!</string>
   <string name="file_location">File saved to </string>
   <string name="save_error">Unable to save file to </string>
+  <string name="say_error">Oops! Can not play sound at this time. Please try again in a moment.</string>
 </resources>

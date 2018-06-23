@@ -220,6 +220,9 @@ namespace SayIt_TextToSpeech
 			// aapt resource value: 0x7f050003
 			public const int say_button = 2131034115;
 			
+			// aapt resource value: 0x7f05000f
+			public const int say_error = 2131034127;
+			
 			// aapt resource value: 0x7f050002
 			public const int say_input = 2131034114;
 			
