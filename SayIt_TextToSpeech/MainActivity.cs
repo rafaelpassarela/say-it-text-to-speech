@@ -247,7 +247,7 @@ namespace SayIt_TextToSpeech
 
                 var path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
 
-                var fileName = GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".mp3";
+                var fileName = GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".wav";
                 var fullName = Path.Combine(path.AbsolutePath, fileName);
 
                 //Java.Lang.ICharSequence chars = new Java.Lang.String(text);
