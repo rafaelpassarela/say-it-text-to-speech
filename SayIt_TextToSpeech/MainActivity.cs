@@ -18,8 +18,6 @@ namespace SayIt_TextToSpeech
     [Activity(Label = "@string/app_name", MainLauncher = true)]
     public class MainActivity : Activity, TextToSpeech.IOnInitListener
     {
-        private TextToSpeech textToSpeech;
-        private Locale selectedLocale;
         private readonly int needLang = 103;
         private readonly int needConfig = 203;
         private Spinner spinLanguages;
@@ -27,54 +25,43 @@ namespace SayIt_TextToSpeech
         private Button btnSayIt;
         private Button btnClear;
 
-        private List<string> langAvailable = new List<string>();
+        private AppController controller;
         private UtteranceProgressListenerWrapper listner;
-        Context context;
 
         public void OnInit([GeneratedEnum] OperationResult status)
         {
             // if get error, set default language
             if (status == OperationResult.Error)
-                textToSpeech.SetLanguage(Locale.Default);
+                controller.SetDefaultLocale();
+
             // listener ok, set lang
             if (status == OperationResult.Success)
             {
-                langAvailable.Clear();
-                langAvailable.Add("Default");
-                // our spinner only wants to contain the languages supported by the tts and ignore the rest
-                var localesAvailable = Locale.GetAvailableLocales().ToList();
-                foreach (var locale in localesAvailable)
-                {
-                    LanguageAvailableResult res = textToSpeech.IsLanguageAvailable(locale);
+                controller.InitializeLocaleList();
 
-                    if (IsLocaleAvailable(locale))
-                    {
-                        langAvailable.Add(locale.DisplayName);
-                    }
-                }
-                langAvailable = langAvailable.OrderBy(t => t).Distinct().ToList();
-
+                // set up our spinner to the languages supported by the tts
                 var adapter = new ArrayAdapter<string>(
-                    this, Android.Resource.Layout.SimpleSpinnerDropDownItem, langAvailable);
+                    this, Android.Resource.Layout.SimpleSpinnerDropDownItem, controller.LangAvailable);
                 spinLanguages.Adapter = adapter;
-                spinLanguages.SetSelection(langAvailable.IndexOf(selectedLocale.DisplayName));
-                textToSpeech.SetLanguage(selectedLocale);
+                spinLanguages.SetSelection(controller.LangAvailable.IndexOf(controller.SelectedLocale.DisplayName));
+                controller.UpdateTTSLanguage();
             }
         }
 
         protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
         {
             // base.OnActivityResult(requestCode, resultCode, data);
-            if (requestCode == needConfig || (requestCode == needLang && !IsLocaleAvailable(selectedLocale)))
+            var localeAvailable = controller.IsLocaleAvailable();
+            if (requestCode == needConfig || (requestCode == needLang && !localeAvailable))
             {
                 // we need a new language installed
                 var installTTS = new Intent();
                 installTTS.SetAction(TextToSpeech.Engine.ActionInstallTtsData);
                 StartActivity(installTTS);
             }
-            else if (IsLocaleAvailable(selectedLocale))
+            else if (localeAvailable)
             {
-                textToSpeech.SetLanguage(selectedLocale);
+                controller.UpdateTTSLanguage();
             }
         }
 
@@ -126,6 +113,28 @@ namespace SayIt_TextToSpeech
             var seekPitch = FindViewById<SeekBar>(Resource.Id.seekPitch);
             spinLanguages = FindViewById<Spinner>(Resource.Id.spinLanguage);
 
+            // create the TTS callback handler 
+            listner = new UtteranceProgressListenerWrapper(
+                (string x) =>
+                {
+                    //onDone
+                    return true;
+                },
+                (string x) =>
+                {
+                    //onError
+                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error), null);
+                    return false;
+                },
+                (string x) =>
+                {
+                    //onBegin                   
+                    return true;
+                }
+            );
+
+            controller = new AppController(this, this, listner);
+
             // set up the initial pitch and speed values then the onscreen values
             // the pitch and rate both go from 0f to 1f, however if you have a seek bar with a max of 1, you get a single step
             // therefore, a simpler option is to have the slider go from 0 to 255 and divide the position of the slider by 255 to get
@@ -135,29 +144,12 @@ namespace SayIt_TextToSpeech
             txtPitchVal.Text = "1.00";
             txtSpeedVal.Text = "1.00";
 
-            // get the context - easiest way is to obtain it from an on screen gadget
-            context = btnSayIt.Context;
-
-            // set up the TextToSpeech object
-            // third parameter is the speech engine to use
-            textToSpeech = new TextToSpeech(this, this, "com.google.android.tts");
-            //textToSpeech.SetOnUtteranceCompletedListener(this);
-
-            // set up the speech to use the default langauge
-            // if a language is not available, then the default language is used.
-            selectedLocale = Locale.Default;
-            textToSpeech.SetLanguage(selectedLocale);
-
-            // set the speed and pitch
-            textToSpeech.SetPitch(1f);
-            textToSpeech.SetSpeechRate(1f);
-
             // connect up the events
             btnSayIt.Click += delegate
             {
                 // if there is nothing to say, don't say it
                 if (!string.IsNullOrEmpty(editWhatToSay.Text))
-                    textToSpeech.Speak(editWhatToSay.Text, QueueMode.Flush, null);
+                    controller.Speak(editWhatToSay.Text);
                 else
                     Toast.MakeText(this, GetText(Resource.String.no_text), ToastLength.Long).Show();
             };
@@ -177,7 +169,9 @@ namespace SayIt_TextToSpeech
             {
                 var seek = sender as SeekBar;
                 var progress = seek.Progress / 255f;
-                textToSpeech.SetPitch(progress);
+
+                controller.SetPitch(progress);
+
                 txtPitchVal.Text = progress.ToString("F2");
             };
 
@@ -185,37 +179,22 @@ namespace SayIt_TextToSpeech
             {
                 var seek = sender as SeekBar;
                 var progress = seek.Progress / 255f;
-                textToSpeech.SetSpeechRate(progress);
+
+                controller.SetSpeechRate(progress);
+
                 txtSpeedVal.Text = progress.ToString("F2");
             };
 
             spinLanguages.ItemSelected += (object sender, AdapterView.ItemSelectedEventArgs e) =>
             {
                 // find the selected locale
-                selectedLocale = Locale.GetAvailableLocales().FirstOrDefault(t => t.DisplayName == langAvailable[(int)e.Id]);
+                controller.UpdateLocale((int)e.Id);
+
                 // create intent to check the TTS has this language installed
                 var checkTTSIntent = new Intent();
                 checkTTSIntent.SetAction(TextToSpeech.Engine.ActionCheckTtsData);
                 StartActivityForResult(checkTTSIntent, needLang);
-            };
-
-            listner = new UtteranceProgressListenerWrapper(
-                (string x) => {
-                    Toast.MakeText(this, "DONE", ToastLength.Long).Show();
-                    return SetEnables(true); },
-                (string x) =>
-                {
-                    Toast.MakeText(this, "ERROR", ToastLength.Long).Show();
-                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error), null);
-                    SetEnables(true);
-                    return false;
-                },
-                (string x) => {
-                    Toast.MakeText(this, "BEGIN", ToastLength.Long).Show();
-                    return SetEnables(false); }
-            );
-
-            textToSpeech.SetOnUtteranceProgressListener(listner);
+            };           
         }
 
         private bool SetEnables(bool value)
@@ -230,21 +209,20 @@ namespace SayIt_TextToSpeech
         {
             if (!string.IsNullOrEmpty(text))
             {
-                btnShare.Enabled = false;
+                //btnShare.Enabled = false;
 
-                var path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-                var fileName = GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".mp3";
-                var fullName = Path.Combine(path.AbsolutePath, fileName);
+                //var path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+                //var fileName = GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".mp3";
+                //var fullName = Path.Combine(path.AbsolutePath, fileName);
 
-                //Java.Lang.ICharSequence chars = new Java.Lang.String(text);
-                Java.IO.File javaFile = new Java.IO.File(fullName);
-                var res = textToSpeech.SynthesizeToFile(text, null, javaFile, "myId");
-                //var res = textToSpeech.SynthesizeToFile(text, null, fullName);
+                //Java.IO.File javaFile = new Java.IO.File(fullName);
+                //var res = textToSpeech.SynthesizeToFile(text, null, javaFile, "myId");
 
-                btnShare.Enabled = true;
-                if (res == OperationResult.Success)
+                //btnShare.Enabled = true;
+
+                if ( controller.SaveToFile(text) )
                 {
-                    Toast.MakeText(this, GetText(Resource.String.file_location) + fileName, ToastLength.Long).Show();
+                    Toast.MakeText(this, GetText(Resource.String.file_location) + " " + fileName, ToastLength.Long).Show();
                     DoShareAudio(fullName);
                 }
                 else
@@ -273,36 +251,25 @@ namespace SayIt_TextToSpeech
 
         private void DoShareAudio(string audioFileName)
         {
-            //var f = new File(audioFileName);
-            //Uri uri = Uri.parse("file://" + f.getAbsolutePath());
+            var localFilePath = audioFileName;
+            if (!localFilePath.StartsWith("file://"))
+                localFilePath = string.Format("file://{0}", localFilePath);
 
-            //Java.IO.File file = new Java.IO.File(audioFileName);
-            //var uri = FileProvider.GetUriForFile(this, BuildConfig.ApplicationId + ".provider", file);
+            var fileUri = Android.Net.Uri.Parse(localFilePath);
 
-            // send as audio stream
-            Intent intentSend = new Intent();
-            intentSend.SetAction(Intent.ActionSend);
-            intentSend.SetType("audio/mp3");
-            //intentSend.PutExtra(Intent.ExtraStream, uri);
-            //intentSend.PutExtra(Intent.ExtraStream, "file:///" + audioFileName);
-            intentSend.AddFlags(ActivityFlags.GrantReadUriPermission);
+            Intent intent = new Intent();
+            intent.SetFlags(ActivityFlags.ClearTop);
+            intent.SetFlags(ActivityFlags.NewTask);
+            intent.SetAction(Intent.ActionSend);
+            intent.SetType("*/*");
+            intent.PutExtra(Intent.ExtraStream, fileUri);
+            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
 
-            StartActivity(Intent.CreateChooser(intentSend, GetText(Resource.String.share_by)));
+            var chooserIntent = Intent.CreateChooser(intent, GetText(Resource.String.share_by));
+            chooserIntent.SetFlags(ActivityFlags.ClearTop);
+            chooserIntent.SetFlags(ActivityFlags.NewTask);
+            Application.Context.StartActivity(chooserIntent);
         }
 
-        private bool IsLocaleAvailable(Locale testLocale)
-        {
-            if (testLocale == null)
-                return false;
-
-            if (Locale.Default.DisplayName == testLocale.DisplayName)
-                return true;
-
-            LanguageAvailableResult res = textToSpeech.IsLanguageAvailable(testLocale);
-
-            return (res == LanguageAvailableResult.Available)
-                || (res == LanguageAvailableResult.CountryAvailable)
-                || (res == LanguageAvailableResult.CountryVarAvailable);
-        }
     }
 }
