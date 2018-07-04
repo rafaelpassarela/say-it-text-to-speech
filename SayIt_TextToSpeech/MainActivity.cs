@@ -1,6 +1,7 @@
 ﻿using Android;
 using Android.App;
 using Android.Content;
+using Android.Provider;
 using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
@@ -29,7 +30,8 @@ namespace SayIt_TextToSpeech
 
         private List<string> langAvailable = new List<string>();
         private UtteranceProgressListenerWrapper listner;
-        Context context;
+        private Context context;
+        private bool processing = false;
 
         public void OnInit([GeneratedEnum] OperationResult status)
         {
@@ -157,7 +159,20 @@ namespace SayIt_TextToSpeech
             {
                 // if there is nothing to say, don't say it
                 if (!string.IsNullOrEmpty(editWhatToSay.Text))
-                    textToSpeech.Speak(editWhatToSay.Text, QueueMode.Flush, null);
+                {
+                    if (!processing)
+                    {
+                        processing = true;
+                        try
+                        {
+                            textToSpeech.Speak(editWhatToSay.Text, QueueMode.Flush, null);
+                        }
+                        finally
+                        {
+                            processing = false;
+                        }
+                    }
+                }
                 else
                     Toast.MakeText(this, GetText(Resource.String.no_text), ToastLength.Long).Show();
             };
@@ -200,39 +215,38 @@ namespace SayIt_TextToSpeech
             };
 
             listner = new UtteranceProgressListenerWrapper(
-                (string x) => {
-                    Toast.MakeText(this, "DONE", ToastLength.Long).Show();
-                    return SetEnables(true); },
                 (string x) =>
                 {
-                    Toast.MakeText(this, "ERROR", ToastLength.Long).Show();
-                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error), null);
-                    SetEnables(true);
+                    processing = false;
                     return false;
                 },
-                (string x) => {
-                    Toast.MakeText(this, "BEGIN", ToastLength.Long).Show();
-                    return SetEnables(false); }
+                (string x) =>
+                {
+                    processing = false;
+                    return false;
+                },
+                (string x) =>
+                {
+                    processing = true;
+                    return false;
+                }
             );
 
             textToSpeech.SetOnUtteranceProgressListener(listner);
-        }
-
-        private bool SetEnables(bool value)
-        {
-            btnClear.Enabled = value;
-            btnSayIt.Enabled = value;
-            btnShare.Enabled = value;
-            return true;
         }
 
         private void SaveAudio(string text)
         {
             if (!string.IsNullOrEmpty(text))
             {
+                if (processing)
+                    return;
+
+                processing = true;
                 btnShare.Enabled = false;
 
                 var path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
+
                 var fileName = GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".mp3";
                 var fullName = Path.Combine(path.AbsolutePath, fileName);
 
@@ -249,6 +263,7 @@ namespace SayIt_TextToSpeech
                 }
                 else
                 {
+                    processing = false;
                     AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error) + '\n' + '\n' + fullName,
                         () =>
                         {
@@ -273,21 +288,30 @@ namespace SayIt_TextToSpeech
 
         private void DoShareAudio(string audioFileName)
         {
-            //var f = new File(audioFileName);
-            //Uri uri = Uri.parse("file://" + f.getAbsolutePath());
 
-            //Java.IO.File file = new Java.IO.File(audioFileName);
-            //var uri = FileProvider.GetUriForFile(this, BuildConfig.ApplicationId + ".provider", file);
+            while (!File.Exists(audioFileName))
+            {
+                System.Threading.Thread.Sleep(100);
+            }
 
-            // send as audio stream
-            Intent intentSend = new Intent();
-            intentSend.SetAction(Intent.ActionSend);
-            intentSend.SetType("audio/mp3");
-            //intentSend.PutExtra(Intent.ExtraStream, uri);
-            //intentSend.PutExtra(Intent.ExtraStream, "file:///" + audioFileName);
-            intentSend.AddFlags(ActivityFlags.GrantReadUriPermission);
+            var localFilePath = audioFileName;
+            if (!localFilePath.StartsWith("file://"))
+                localFilePath = string.Format("file://{0}", localFilePath);
 
-            StartActivity(Intent.CreateChooser(intentSend, GetText(Resource.String.share_by)));
+            var fileUri = Android.Net.Uri.Parse(localFilePath);
+
+            Intent intent = new Intent();
+            intent.SetFlags(ActivityFlags.ClearTop);
+            intent.SetFlags(ActivityFlags.NewTask);
+            intent.SetAction(Intent.ActionSend);
+            intent.SetType("*/*");
+            intent.PutExtra(Intent.ExtraStream, fileUri);
+            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
+
+            var chooserIntent = Intent.CreateChooser(intent, GetText(Resource.String.share_by));
+            chooserIntent.SetFlags(ActivityFlags.ClearTop);
+            chooserIntent.SetFlags(ActivityFlags.NewTask);
+            Android.App.Application.Context.StartActivity(chooserIntent);
         }
 
         private bool IsLocaleAvailable(Locale testLocale)
