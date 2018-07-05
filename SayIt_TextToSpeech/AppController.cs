@@ -185,7 +185,7 @@ namespace SayIt_TextToSpeech
             return false;
         }
 
-        public bool ShareFile()
+        public bool ShareFile(bool shareText)
         {
             var localFilePath = OutputFile.FileFullName;
 
@@ -201,7 +201,10 @@ namespace SayIt_TextToSpeech
             intent.SetType("*/*");
 
             // add the text to the share intent
-            //intent.PutExtra(Intent.ExtraText, OutputFile.LastTextConverted);
+            if (shareText)
+            {
+                intent.PutExtra(Intent.ExtraText, OutputFile.LastTextConverted);
+            }
             // add the audio stream to the share intent
             intent.PutExtra(Intent.ExtraStream, fileUri);
             

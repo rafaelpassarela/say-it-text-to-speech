@@ -11,7 +11,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/linearLayoutButtons"
-        android:gravity="center">
+        android:gravity="left"
+        android:layout_marginLeft="5px"
+        android:layout_marginRight="5px">
         <Button
             android:text="@string/say_button"
             android:layout_width="wrap_content"
@@ -22,11 +24,26 @@
             android:layout_height="55dp"
             android:layout_width="55dp"
             android:drawableLeft="@android:drawable/ic_menu_share" />
-        <Button
-            android:id="@+id/btnClear"
-            android:layout_height="55dp"
-            android:layout_width="55dp"
-            android:drawableLeft="@android:drawable/ic_menu_delete" />
+        <CheckBox
+            android:text="@string/share_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:id="@+id/checkBoxShareText" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:minWidth="25px"
+            android:minHeight="59dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayoutButtonsRight"
+            android:gravity="right"
+            android:layout_marginLeft="0.0dp">
+            <Button
+                android:id="@+id/btnClear"
+                android:layout_height="55dp"
+                android:layout_width="55dp"
+                android:drawableLeft="@android:drawable/ic_menu_delete" />
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:orientation="vertical"
@@ -35,7 +52,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/linearLayoutText"
-        android:layout_weight="0.4">
+        android:layout_weight="0.4"
+        android:layout_marginLeft="5px"
+        android:layout_marginRight="5px">
         <TextView
             android:text="@string/say_label"
             android:textAppearance="?android:attr/textAppearanceMedium"

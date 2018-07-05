@@ -19,4 +19,5 @@
   <string name="save_dir">Files_SayIt</string>
   <string name="no_dir_caption">Path Not Found</string>
   <string name="no_dir_text">The path can\'t be verified. Check the App permission and try again.</string>
+  <string name="share_text">Share with Text</string>
 </resources>

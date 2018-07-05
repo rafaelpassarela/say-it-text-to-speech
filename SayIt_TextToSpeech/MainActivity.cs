@@ -18,6 +18,7 @@ namespace SayIt_TextToSpeech
         private Button btnShare;
         private Button btnSayIt;
         private Button btnClear;
+        private CheckBox cbShareText;
 
         private AppController controller;
         private UtteranceProgressListenerWrapper listner;
@@ -100,6 +101,7 @@ namespace SayIt_TextToSpeech
             btnSayIt = FindViewById<Button>(Resource.Id.btnSpeak);
             btnShare = FindViewById<Button>(Resource.Id.btnShare);
             btnClear = FindViewById<Button>(Resource.Id.btnClear);
+            cbShareText = FindViewById<CheckBox>(Resource.Id.checkBoxShareText);
 
             var editWhatToSay = FindViewById<EditText>(Resource.Id.editSpeech);
             var txtSpeedVal = FindViewById<TextView>(Resource.Id.textSpeed);
@@ -227,7 +229,7 @@ namespace SayIt_TextToSpeech
                 attemptCount++;
             }
 
-            controller.ShareFile();
+            controller.ShareFile( cbShareText.Checked );
             saveDone = false;
         }
 
