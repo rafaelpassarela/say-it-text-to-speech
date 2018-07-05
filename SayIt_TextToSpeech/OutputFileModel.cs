@@ -12,6 +12,7 @@ namespace SayIt_TextToSpeech
         public Java.IO.File DownloadPath => _downloadPath;
         public string FilePath => Path.Combine(DownloadPath.AbsolutePath, _fileLocation);
         public string FileFullName => Path.Combine(FilePath, FileName);
+        public string LastTextConverted { get; set; }
 
         public OutputFileModel(string fileLocation)
         {

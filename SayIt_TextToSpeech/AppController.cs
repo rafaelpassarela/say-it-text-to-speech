@@ -23,7 +23,7 @@ namespace SayIt_TextToSpeech
         public Locale SelectedLocale { get; set; }
         public List<string> LangAvailable => _langList;
         public OutputFileModel OutputFile { get; }
-
+        
         public AppController(Context context, Activity activity, TextToSpeech.IOnInitListener initListener, UtteranceProgressListenerWrapper listenerWrapper)
         {
             _context = context;
@@ -165,6 +165,7 @@ namespace SayIt_TextToSpeech
                     () => RequestPermission());
                 return false;
             }
+            OutputFile.LastTextConverted = text;
 
             return true;
         }
@@ -182,6 +183,36 @@ namespace SayIt_TextToSpeech
                 return true;
             }
             return false;
+        }
+
+        public bool ShareFile()
+        {
+            var localFilePath = OutputFile.FileFullName;
+
+            if (!localFilePath.StartsWith("file://"))
+                localFilePath = string.Format("file://{0}", localFilePath);
+
+            var fileUri = Android.Net.Uri.Parse(localFilePath);
+
+            Intent intent = new Intent();
+            intent.SetFlags(ActivityFlags.ClearTop);
+            intent.SetFlags(ActivityFlags.NewTask);
+            intent.SetAction(Intent.ActionSend);
+            intent.SetType("*/*");
+
+            // add the text to the share intent
+            //intent.PutExtra(Intent.ExtraText, OutputFile.LastTextConverted);
+            // add the audio stream to the share intent
+            intent.PutExtra(Intent.ExtraStream, fileUri);
+            
+            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
+
+            var chooserIntent = Intent.CreateChooser(intent, _context.GetText(Resource.String.share_by));
+            chooserIntent.SetFlags(ActivityFlags.ClearTop);
+            chooserIntent.SetFlags(ActivityFlags.NewTask);
+            Application.Context.StartActivity(chooserIntent);
+
+            return true;
         }
     }
 }

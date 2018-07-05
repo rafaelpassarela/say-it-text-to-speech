@@ -1,17 +1,11 @@
-﻿using Android;
-using Android.App;
+﻿using Android.App;
 using Android.Content;
-using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
 using Android.Speech.Tts;
 using Android.Views;
 using Android.Widget;
-using Java.Util;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
+using System.Threading;
 
 namespace SayIt_TextToSpeech
 {
@@ -203,14 +197,6 @@ namespace SayIt_TextToSpeech
             };           
         }
 
-        private bool SetEnables(bool value)
-        {
-            btnClear.Enabled = value;
-            btnSayIt.Enabled = value;
-            btnShare.Enabled = value;
-            return true;
-        }
-
         private void SaveAudio(string text)
         {
             if (!string.IsNullOrEmpty(text))
@@ -219,7 +205,7 @@ namespace SayIt_TextToSpeech
                 if ( controller.SaveToFile(text) )
                 {
                     Toast.MakeText(this, GetText(Resource.String.file_location) + " " + controller.OutputFile.FileName, ToastLength.Long).Show();
-                    DoShareAudio(controller.OutputFile.FileFullName);
+                    DoShareAudio();
                 }
             }
             else
@@ -228,29 +214,20 @@ namespace SayIt_TextToSpeech
             }
         }
 
-        private void DoShareAudio(string audioFileName)
+        private void DoShareAudio()
         {
+            int attemptCount = 0;
+            // wait the callback funtion from  UtteranceProgressListener
+            // saveDone becone false when starts the SaveAudio method and become true on callback
+            while (!saveDone || (attemptCount > 90))
+            {
+                Thread.Sleep(100);
+                // every millisecond has 9 attempts (in this case), so we will wait for ten secs.
+                // 9 * 10 = 90 attemps at total, if attemptCount > 90 it's time to move on
+                attemptCount++;
+            }
 
-
-            var localFilePath = audioFileName;
-            if (!localFilePath.StartsWith("file://"))
-                localFilePath = string.Format("file://{0}", localFilePath);
-
-            var fileUri = Android.Net.Uri.Parse(localFilePath);
-
-            Intent intent = new Intent();
-            intent.SetFlags(ActivityFlags.ClearTop);
-            intent.SetFlags(ActivityFlags.NewTask);
-            intent.SetAction(Intent.ActionSend);
-            intent.SetType("*/*");
-            intent.PutExtra(Intent.ExtraStream, fileUri);
-            intent.AddFlags(ActivityFlags.GrantReadUriPermission);
-
-            var chooserIntent = Intent.CreateChooser(intent, GetText(Resource.String.share_by));
-            chooserIntent.SetFlags(ActivityFlags.ClearTop);
-            chooserIntent.SetFlags(ActivityFlags.NewTask);
-            Application.Context.StartActivity(chooserIntent);
-
+            controller.ShareFile();
             saveDone = false;
         }
 
