@@ -208,11 +208,20 @@ namespace SayIt_TextToSpeech
 			// aapt resource value: 0x7f050004
 			public const int language = 2131034116;
 			
+			// aapt resource value: 0x7f050011
+			public const int no_dir_caption = 2131034129;
+			
+			// aapt resource value: 0x7f050012
+			public const int no_dir_text = 2131034130;
+			
 			// aapt resource value: 0x7f05000c
 			public const int no_text = 2131034124;
 			
 			// aapt resource value: 0x7f050006
 			public const int pitch = 2131034118;
+			
+			// aapt resource value: 0x7f050010
+			public const int save_dir = 2131034128;
 			
 			// aapt resource value: 0x7f05000e
 			public const int save_error = 2131034126;

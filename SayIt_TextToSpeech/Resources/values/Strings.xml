@@ -16,4 +16,7 @@
   <string name="file_location">File saved to </string>
   <string name="save_error">Unable to save file to </string>
   <string name="say_error">Oops! Can not play sound at this time. Check the application permissions and try again.</string>
+  <string name="save_dir">Files_SayIt</string>
+  <string name="no_dir_caption">Path Not Found</string>
+  <string name="no_dir_text">The path can\'t be verified. Check the App permission and try again.</string>
 </resources>

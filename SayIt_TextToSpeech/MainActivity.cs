@@ -27,6 +27,7 @@ namespace SayIt_TextToSpeech
 
         private AppController controller;
         private UtteranceProgressListenerWrapper listner;
+        private bool saveDone = false;
 
         public void OnInit([GeneratedEnum] OperationResult status)
         {
@@ -118,22 +119,25 @@ namespace SayIt_TextToSpeech
                 (string x) =>
                 {
                     //onDone
+                    saveDone = true;
                     return true;
                 },
                 (string x) =>
                 {
                     //onError
+                    saveDone = false;
                     AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error), null);
                     return false;
                 },
                 (string x) =>
                 {
-                    //onBegin                   
+                    //onBegin
+                    saveDone = false;
                     return true;
                 }
             );
 
-            controller = new AppController(this, this, listner);
+            controller = new AppController(this, this, this, listner);
 
             // set up the initial pitch and speed values then the onscreen values
             // the pitch and rate both go from 0f to 1f, however if you have a seek bar with a max of 1, you get a single step
@@ -152,11 +156,13 @@ namespace SayIt_TextToSpeech
                     controller.Speak(editWhatToSay.Text);
                 else
                     Toast.MakeText(this, GetText(Resource.String.no_text), ToastLength.Long).Show();
+                saveDone = false;
             };
 
             btnClear.Click += delegate
             {
                 editWhatToSay.Text = "";
+                saveDone = false;
             };
 
             btnShare.Click += delegate
@@ -209,38 +215,11 @@ namespace SayIt_TextToSpeech
         {
             if (!string.IsNullOrEmpty(text))
             {
-                //btnShare.Enabled = false;
-
-                //var path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-                //var fileName = GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".mp3";
-                //var fullName = Path.Combine(path.AbsolutePath, fileName);
-
-                //Java.IO.File javaFile = new Java.IO.File(fullName);
-                //var res = textToSpeech.SynthesizeToFile(text, null, javaFile, "myId");
-
-                //btnShare.Enabled = true;
-
+                saveDone = false;
                 if ( controller.SaveToFile(text) )
                 {
-                    Toast.MakeText(this, GetText(Resource.String.file_location) + " " + fileName, ToastLength.Long).Show();
-                    DoShareAudio(fullName);
-                }
-                else
-                {
-                    AlertDialog.InfoMessage(this, ":(", GetText(Resource.String.say_error) + '\n' + '\n' + fullName,
-                        () =>
-                        {
-                            if ((int)Build.VERSION.SdkInt >= 23)
-                            {
-                                const string permission = Manifest.Permission.WriteExternalStorage;
-                                var permissionList = new String[] { permission, Manifest.Permission.ReadExternalStorage };
-
-                                if (CheckSelfPermission(permission) != (int)Permission.Granted)
-                                    RequestPermissions(permissionList, 0);
-                            }
-                            return true;
-                        }
-                    );
+                    Toast.MakeText(this, GetText(Resource.String.file_location) + " " + controller.OutputFile.FileName, ToastLength.Long).Show();
+                    DoShareAudio(controller.OutputFile.FileFullName);
                 }
             }
             else
@@ -251,6 +230,8 @@ namespace SayIt_TextToSpeech
 
         private void DoShareAudio(string audioFileName)
         {
+
+
             var localFilePath = audioFileName;
             if (!localFilePath.StartsWith("file://"))
                 localFilePath = string.Format("file://{0}", localFilePath);
@@ -269,6 +250,8 @@ namespace SayIt_TextToSpeech
             chooserIntent.SetFlags(ActivityFlags.ClearTop);
             chooserIntent.SetFlags(ActivityFlags.NewTask);
             Application.Context.StartActivity(chooserIntent);
+
+            saveDone = false;
         }
 
     }

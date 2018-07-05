@@ -1,31 +1,35 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using System.Text;
-using Java.Util;
+﻿using Android;
 using Android.App;
 using Android.Content;
+using Android.Content.PM;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
-using Android.Widget;
 using Android.Speech.Tts;
+using Android.Widget;
+using Java.Util;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace SayIt_TextToSpeech
 {
     class AppController
     {
         private List<string> _langList = new List<string>();
-        private TextToSpeech _textToSpeech;
+        private readonly TextToSpeech _textToSpeech;
         private readonly Context _context;
+        private readonly Activity _activity;
 
         public Locale SelectedLocale { get; set; }
         public List<string> LangAvailable => _langList;
+        public OutputFileModel OutputFile { get; }
 
-        public AppController(Context context, TextToSpeech.IOnInitListener initListener, UtteranceProgressListenerWrapper listenerWrapper)
+        public AppController(Context context, Activity activity, TextToSpeech.IOnInitListener initListener, UtteranceProgressListenerWrapper listenerWrapper)
         {
             _context = context;
+            _activity = activity;
+
+            OutputFile = new OutputFileModel(_context.GetText(Resource.String.save_dir));
 
             SetDefaultLocale();
 
@@ -128,14 +132,56 @@ namespace SayIt_TextToSpeech
 
         public bool SaveToFile(string text)
         {
-            var path = Android.OS.Environment.GetExternalStoragePublicDirectory(Android.OS.Environment.DirectoryDownloads);
-            var fileName = _context.GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".mp3";
-            var fullName = Path.Combine(path.AbsolutePath, fileName);
+            OutputFile.FileName = _context.GetText(Resource.String.say_button) + "_" + DateTime.Now.ToString("yyyy_mm_dd_HH_mm_ss") + ".wav";
 
-            Java.IO.File javaFile = new Java.IO.File(fullName);
+            var name = OutputFile.FilePath;
+            if (!Directory.Exists(name))
+            {
+                try
+                {
+                    Directory.CreateDirectory(name);
+                }
+                catch (Exception e)
+                {
+                    if (e.GetType() == typeof(UnauthorizedAccessException))
+                    {
+                        AlertDialog.InfoMessage(
+                            _context,
+                            _context.GetText(Resource.String.no_dir_caption),
+                            _context.GetText(Resource.String.no_dir_text) + "\n\n" + name,
+                            () => RequestPermission());
+                        return false;
+                    }
+                    throw;
+                }
+            }
+
+            Java.IO.File javaFile = new Java.IO.File(OutputFile.FileFullName);
             var res = _textToSpeech.SynthesizeToFile(text, null, javaFile, "myId");
 
-            return res == OperationResult.Success;
+            if (res != OperationResult.Success)
+            {
+                AlertDialog.InfoMessage(_context, ":(", _context.GetText(Resource.String.say_error) + '\n' + '\n' + OutputFile.FileFullName,
+                    () => RequestPermission());
+                return false;
+            }
+
+            return true;
+        }
+
+        public bool RequestPermission()
+        {
+            if ((int)Build.VERSION.SdkInt >= 23)
+            {
+                const string permission = Manifest.Permission.WriteExternalStorage;
+                var permissionList = new String[] { permission, Manifest.Permission.ReadExternalStorage };
+
+                if (_context.CheckSelfPermission(permission) != (int)Permission.Granted)
+                    _activity.RequestPermissions(permissionList, 0);
+
+                return true;
+            }
+            return false;
         }
     }
 }
