@@ -196,7 +196,7 @@ namespace SayIt_TextToSpeech
                 var checkTTSIntent = new Intent();
                 checkTTSIntent.SetAction(TextToSpeech.Engine.ActionCheckTtsData);
                 StartActivityForResult(checkTTSIntent, needLang);
-            };           
+            };
         }
 
         private void SaveAudio(string text)
@@ -204,7 +204,7 @@ namespace SayIt_TextToSpeech
             if (!string.IsNullOrEmpty(text))
             {
                 saveDone = false;
-                if ( controller.SaveToFile(text) )
+                if (controller.SaveToFile(text))
                 {
                     Toast.MakeText(this, GetText(Resource.String.file_location) + " " + controller.OutputFile.FileName, ToastLength.Long).Show();
                     DoShareAudio();
@@ -229,7 +229,9 @@ namespace SayIt_TextToSpeech
                 attemptCount++;
             }
 
-            controller.ShareFile( cbShareText.Checked );
+            Thread.Sleep(1000); // test
+
+            controller.ShareFile(cbShareText.Checked);
             saveDone = false;
         }
 

@@ -23,7 +23,7 @@ namespace SayIt_TextToSpeech
         public Locale SelectedLocale { get; set; }
         public List<string> LangAvailable => _langList;
         public OutputFileModel OutputFile { get; }
-        
+
         public AppController(Context context, Activity activity, TextToSpeech.IOnInitListener initListener, UtteranceProgressListenerWrapper listenerWrapper)
         {
             _context = context;
@@ -157,7 +157,7 @@ namespace SayIt_TextToSpeech
             }
 
             Java.IO.File javaFile = new Java.IO.File(OutputFile.FileFullName);
-            var res = _textToSpeech.SynthesizeToFile(text, null, javaFile, "myId");
+            var res = _textToSpeech.SynthesizeToFile(CheckText(text), null, javaFile, "myId");
 
             if (res != OperationResult.Success)
             {
@@ -189,6 +189,9 @@ namespace SayIt_TextToSpeech
         {
             var localFilePath = OutputFile.FileFullName;
 
+            //AudioController audio = new AudioController(_context);
+            //audio.MergeSilent(localFilePath);
+
             if (!localFilePath.StartsWith("file://"))
                 localFilePath = string.Format("file://{0}", localFilePath);
 
@@ -200,13 +203,14 @@ namespace SayIt_TextToSpeech
             intent.SetAction(Intent.ActionSend);
             intent.SetType("*/*");
 
+            // add the audio stream to the share intent
+            intent.PutExtra(Intent.ExtraStream, fileUri);
+
             // add the text to the share intent
             if (shareText)
             {
                 intent.PutExtra(Intent.ExtraText, OutputFile.LastTextConverted);
             }
-            // add the audio stream to the share intent
-            intent.PutExtra(Intent.ExtraStream, fileUri);
             
             intent.AddFlags(ActivityFlags.GrantReadUriPermission);
 
@@ -216,6 +220,14 @@ namespace SayIt_TextToSpeech
             Application.Context.StartActivity(chooserIntent);
 
             return true;
+        }
+
+        private string CheckText(String text)
+        {
+            // text must have to end whit an "." char and a new empty line
+            text = text.Trim() + (text.EndsWith(".") ? "" : ".") + '\n';
+
+            return text;
         }
     }
 }
