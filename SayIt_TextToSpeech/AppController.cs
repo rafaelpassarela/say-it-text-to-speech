@@ -5,6 +5,7 @@ using Android.Content.PM;
 using Android.OS;
 using Android.Speech.Tts;
 using Android.Widget;
+using Java.Lang.Reflect;
 using Java.Util;
 using System;
 using System.Collections.Generic;
@@ -185,6 +186,24 @@ namespace SayIt_TextToSpeech
             return false;
         }
 
+        public static void CheckStrictMode()
+        {
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            {
+                try
+                {
+                    StrictMode.SetVmPolicy(
+                        new StrictMode.VmPolicy.Builder()
+                        .PenaltyDeathOnFileUriExposure()
+                        .Build());
+                }
+                catch (Exception e)
+                {
+                    Console.Write(e.Message);
+                }
+            }
+        }
+
         public bool ShareFile(bool shareText)
         {
             var localFilePath = OutputFile.FileFullName;
@@ -192,8 +211,17 @@ namespace SayIt_TextToSpeech
             //AudioController audio = new AudioController(_context);
             //audio.MergeSilent(localFilePath);
 
+            //if (Build.VERSION.SdkInt >= BuildVersionCodes.O)
+            //{
+            //    if (!localFilePath.StartsWith("content://"))
+            //        localFilePath = string.Format("content://{0}", localFilePath);
+
+            //}
+            //else
+            //{
             if (!localFilePath.StartsWith("file://"))
                 localFilePath = string.Format("file://{0}", localFilePath);
+            //}
 
             var fileUri = Android.Net.Uri.Parse(localFilePath);
 
@@ -211,7 +239,7 @@ namespace SayIt_TextToSpeech
             {
                 intent.PutExtra(Intent.ExtraText, OutputFile.LastTextConverted);
             }
-            
+
             intent.AddFlags(ActivityFlags.GrantReadUriPermission);
 
             var chooserIntent = Intent.CreateChooser(intent, _context.GetText(Resource.String.share_by));

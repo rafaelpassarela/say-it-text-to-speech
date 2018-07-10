@@ -93,6 +93,8 @@ namespace SayIt_TextToSpeech
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            AppController.CheckStrictMode();
+
             base.OnCreate(savedInstanceState);
 
             // Set our view from the "main" layout resource
@@ -102,13 +104,14 @@ namespace SayIt_TextToSpeech
             btnShare = FindViewById<Button>(Resource.Id.btnShare);
             btnClear = FindViewById<Button>(Resource.Id.btnClear);
             cbShareText = FindViewById<CheckBox>(Resource.Id.checkBoxShareText);
+            spinLanguages = FindViewById<Spinner>(Resource.Id.spinLanguage);
 
             var editWhatToSay = FindViewById<EditText>(Resource.Id.editSpeech);
             var txtSpeedVal = FindViewById<TextView>(Resource.Id.textSpeed);
             var txtPitchVal = FindViewById<TextView>(Resource.Id.textPitch);
             var seekSpeed = FindViewById<SeekBar>(Resource.Id.seekSpeed);
             var seekPitch = FindViewById<SeekBar>(Resource.Id.seekPitch);
-            spinLanguages = FindViewById<Spinner>(Resource.Id.spinLanguage);
+            var lblVersion = FindViewById<TextView>(Resource.Id.lblVersion);            
 
             // create the TTS callback handler 
             listner = new UtteranceProgressListenerWrapper(
@@ -197,6 +200,8 @@ namespace SayIt_TextToSpeech
                 checkTTSIntent.SetAction(TextToSpeech.Engine.ActionCheckTtsData);
                 StartActivityForResult(checkTTSIntent, needLang);
             };
+
+            lblVersion.Text = "v." + PackageManager.GetPackageInfo(PackageName, 0).VersionName;
         }
 
         private void SaveAudio(string text)

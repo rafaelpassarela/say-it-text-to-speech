@@ -87,6 +87,9 @@ namespace SayIt_TextToSpeech
 			// aapt resource value: 0x7f070014
 			public const int lblSpeed = 2131165204;
 			
+			// aapt resource value: 0x7f070017
+			public const int lblVersion = 2131165207;
+			
 			// aapt resource value: 0x7f070000
 			public const int linearLayoutButtons = 2131165184;
 			
@@ -99,11 +102,11 @@ namespace SayIt_TextToSpeech
 			// aapt resource value: 0x7f070006
 			public const int linearLayoutText = 2131165190;
 			
-			// aapt resource value: 0x7f070017
-			public const int menu_config = 2131165207;
-			
 			// aapt resource value: 0x7f070018
-			public const int menu_git = 2131165208;
+			public const int menu_config = 2131165208;
+			
+			// aapt resource value: 0x7f070019
+			public const int menu_git = 2131165209;
 			
 			// aapt resource value: 0x7f070011
 			public const int seekPitch = 2131165201;
@@ -126,14 +129,14 @@ namespace SayIt_TextToSpeech
 			// aapt resource value: 0x7f070013
 			public const int tableRow3 = 2131165203;
 			
+			// aapt resource value: 0x7f07000e
+			public const int textDummy = 2131165198;
+			
 			// aapt resource value: 0x7f070012
 			public const int textPitch = 2131165202;
 			
 			// aapt resource value: 0x7f070016
 			public const int textSpeed = 2131165206;
-			
-			// aapt resource value: 0x7f07000e
-			public const int textView14 = 2131165198;
 			
 			static Id()
 			{
